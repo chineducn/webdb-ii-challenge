@@ -25,4 +25,38 @@ router.get('/:id', validateCarId, (req, res) => {
     res.status(200).json(req.car)
 })
 
+router.post('/', (req, res) => {
+    db('cars').insert({
+        vin: req.body.vin,
+        make: req.body.make,
+        model: req.body.model,
+        mileage: req.body.mileage,
+        transmissionType: req.body.transmissionType,
+        titleStatus: req.body.titleStatus
+    })
+        .then(newId => {
+            db('cars').where({ id: newId[0] })
+                .then(car => {
+                    res
+                        .status(201)
+                        .json(car[0])
+                })
+                .catch(error => {
+                    res
+                        .status(500)
+                        .json({
+                        message: "There was an error getting the new car from the database" + " " + error
+                    })
+                })
+        })
+        .catch(error => {
+            res
+                .status(500)
+                .json({
+                message: "There was an error adding the car to the list." + " " + error
+            })
+        })
+})
+
+
 module.exports = router
